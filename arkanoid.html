@@ -6,7 +6,13 @@
     <title>Arkanoid</title>
 </head>
 <body>
-
+    
+<style>
+   body{
+     margin-left:30%;  
+    }
+</style>
+    
 <script type="text/javascript" src="pointjs.js"></script>
 
 <script type="text/javascript">
@@ -42,12 +48,12 @@
          dx=speed;
      }
      if (key.isDown('A') || key.isDown('LEFT')) {
-         dx=-speed;
+         dx = -speed;
      }
 
      if ((key.isDown('SPACE')) && DX==0) {
-         DX=SPEED;
-         DY=-SPEED;
+         DX = SPEED;
+         DY = -SPEED;
      }
  }
 
