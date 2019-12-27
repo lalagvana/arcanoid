@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width,user-scalable=no"/>
+    <title>Arkanoid</title>
+</head>
+<body>
+
+<script type="text/javascript" src="pointjs.js"></script>
+
+<script type="text/javascript">
+
+ var pjs = new PointJS(620, 500, {backgroundColor: '#FAEEDD'})
+ var game = pjs.game;
+ var key = pjs.keyControl;
+ key.initKeyControl();
+ var p = pjs.vector.point;
+
+ var mouse = pjs.mouseControl;
+ mouse.initMouseControl();
+
+ var s=40, s2=30, x, y, fon=[];
+ for (x=0; x<15; x++)
+     for (y=0; y<7; y++)
+         fon.push(game.newRectObject( { x : 15 + x * s, y : 11 + y * s2, w: s - 13, h: s2-13, fillColor : "#6A5ACD"}))
+
+ var pl = game.newRectObject({x : 210, y : 450, w : 90, h : 10, fillColor : "#990066",});
+ var rect1 = game.newRectObject({x : 0, y : 0, w : 10, h : 500, fillColor : "#490005",});
+ var rect2 = game.newRectObject({x : 610, y : 0, w : 10, h : 500, fillColor : "#490005",});
+ var rect3 = game.newRectObject({x : 10, y : 0, w : 610, h : 10, fillColor : "#490005",});
+ var rect4 = game.newRectObject({x : 10, y : 490, w : 610, h : 10, fillColor : "#490005",});
+
+ var c = game.newCircleObject({x : 360, y : 415, radius : 10, fillColor : "#343B29"});
+ var speed = 20;
+ var SPEED = 4;
+ var DX = DY = 0;
+
+ var move = function () {
+     dx = dy = 0;
+     if (key.isDown('D') || key.isDown('RIGHT') ) {
+         dx=speed;
+     }
+     if (key.isDown('A') || key.isDown('LEFT')) {
+         dx=-speed;
+     }
+
+     if ((key.isDown('SPACE')) && DX==0) {
+         DX=SPEED;
+         DY=-SPEED;
+     }
+ }
+
+ var gameOver = false;
+
+ var collision = function () {
+     if (rect1.isStaticIntersect(pl.getStaticBoxA(-speed, 0, speed)))
+         if (dx == -speed) {
+             dx = 0;
+             pl.setPosition(p(rect1.x + rect1.w, pl.y));
+         }
+
+     if (rect2.isStaticIntersect(pl.getStaticBoxD(0, 0, speed)))
+         if (dx == speed) {
+             dx = 0;
+             pl.setPosition(p(rect2.x - pl.w, pl.y));
+         }
+
+     if (rect3.isStaticIntersect(c.getStaticBoxW(0, -SPEED, 0, SPEED))) {
+         if (DY == -SPEED) {
+             DY=0;
+             c.setPosition(p(c.x, rect3.y + rect3.h));
+         }
+         if (DY == 0) 
+             DY = SPEED;
+     }
+
+     if (rect4.isStaticIntersect(c.getStaticBoxS(0, 0, 0, SPEED)))
+         gameOver=true;
+     
+     if (rect1.isStaticIntersect(c.getStaticBoxA(-SPEED, 0, SPEED))) {
+         if (DX == -SPEED) {
+             DX=0;
+             c.setPosition(p(rect1.x+rect1.w, c.y));
+         }
+         if (DX == 0) 
+             DX = SPEED;
+     }
+
+     if (rect2.isStaticIntersect(c.getStaticBoxD(0, 0, SPEED))) {
+         if (DX == SPEED) {
+             DX = 0;
+             c.setPosition(p(rect2.x - c.radius*2, c.y));
+         }
+         if (DX == 0) 
+             DX = -SPEED;
+     }
+
+     if (pl.isStaticIntersect(c.getStaticBoxA(-SPEED, 0, SPEED))) {
+         if (DX == -SPEED) {
+             DX = 0;
+             c.setPosition(p(pl.x + pl.w, c.y));
+         }
+         if (DX == 0) 
+             DX = SPEED;
+     } 
+     else if (pl.isStaticIntersect(c.getStaticBoxD(0, 0, SPEED))) {
+         if (DX == SPEED) {
+         DX=0;
+         c.setPosition(p(pl.x - c.radius*2, c.y));
+         } 
+         if (DX == 0) 
+            DX = -SPEED;
+     }  
+     else if (pl.isStaticIntersect(c.getStaticBoxS(0, 0, 0, SPEED))) {
+         if (DY == SPEED) {
+             DY = 0;
+             c.setPosition(p(c.x, pl.y - c.radius*2));
+         }
+         if (DY == 0) 
+             DY = -SPEED;
+     }
+     
+     for (var i in fon) {
+         if (fon[i].isStaticIntersect(c.getStaticBoxW(0, -SPEED, 0, SPEED))) {
+             if (DY == -SPEED) {
+                DY = 0;
+                c.setPosition(p(c.x, fon[i].y + fon[i].h));
+             }
+             if (DY == 0) { 
+                 DY=SPEED;
+                fon.splice(i, 1);
+             }
+         } 
+         else if (fon[i].isStaticIntersect(c.getStaticBoxS(0, 0, 0, SPEED))) {
+             if (DY == SPEED) {
+                 DY = 0;
+                 c.setPosition(p(c.x, fon[i].y - c.radius*2));
+             }
+             if (DY == 0) {
+                 DY = -SPEED;
+                fon.splice(i, 1);
+             }
+         } 
+         else if (fon[i].isStaticIntersect(c.getStaticBoxA(-SPEED, 0, SPEED))) {
+             if (DX == -SPEED) {
+                 DX=0;
+                 c.setPosition(p(fon[i].x + fon[i].w, c.y));
+             }
+             if (DX == 0) { 
+                 DX=SPEED;
+                 fon.splice(i, 1);
+             }
+         } 
+         else if (fon[i].isStaticIntersect(c.getStaticBoxD(0, 0, SPEED))) {
+             if (DX == SPEED) {
+                 DX = 0;
+                 c.setPosition(p(fon[i].x - c.radius*2, c.y));
+             }
+             if (DX == 0) { 
+                 DX = -SPEED;
+                 fon.splice(i, 1);
+             }
+         }
+
+     }
+ }
+
+ game.newLoop('myGame', function () {
+     for (var i in fon)
+        fon[i].draw();
+
+     c.move(p(DX, DY));
+     c.draw();
+
+     move();
+     collision();
+     pl.move(p(dx, dy));
+     pl.draw();
+
+     rect1.draw();
+     rect2.draw();
+     rect3.draw();
+     rect4.draw();
+     
+     pjs.brush.drawText({text : (DX == 0 && DY == 0) ? 'Relax Arkanoid' : '', size : 35, color : '#702963', x : 196, y : 240});
+     
+     pjs.brush.drawText({text : (DX == 0 && DY == 0) ? 'Press SPASE to start' : '', size : 30, color : '#702963', x : 185, y : 290});
+
+     pjs.brush.drawText({text : gameOver == true ? 'GAMEOVER' : '', size : 30, color : '#702963', x : 230, y : 250});
+
+     pjs.brush.drawText({text : gameOver == true ? 'Press SPASE to start' : '', size : 30, color : '#702963', x : 185, y : 290});
+
+     if (gameOver == true && key.isDown('SPACE')) {
+         fon = [];
+         gameOver = false;
+         c.x = 360;
+         c.y = 415;
+         DX = SPEED;
+         DY = -SPEED;
+         for (x = 0; x < 15; x++)
+             for (y = 0; y < 7; y++)
+                 fon.push(game.newRectObject({x : 15 + x * s, y :  11 + y * s2, w: s - 13, h: s2 - 13, fillColor : "#6B7AF7"}))
+     }
+ })
+ game.setLoop('myGame');
+ game.start();
+ </script>
+</body>
+</html>
